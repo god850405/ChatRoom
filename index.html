@@ -34,10 +34,10 @@
             messages: [],
             temp: {},
             socket: null,
-            typing: false
+            typing: false,
         },
         mounted() {
-            this.socket = socket = io("http://localhost:4040")
+            this.socket = socket = io(location.origin);
 
             // 進入聊天室時，會收到之前的全部訊息，並更新到 messages
             this.socket.on("allMessage", obj => {
