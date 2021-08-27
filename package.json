@@ -1,23 +1,21 @@
 {
-  "name": "chatroom",
-  "version": "1.0.0",
-  "description": "Socket.io Test",
-  "main": "index.js",
-  "scripts": {
-    "test": "test.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "ChatRoom"
-  },
-  "keywords": [
-    "socket.io"
-  ],
-  "author": "Marcus",
-  "license": "ISC",
-  "dependencies": {
-    "express": "^4.17.1",
-    "http": "0.0.1-security",
-    "socket.io": "^4.1.3"
-  }
+    "name": "chatroom",
+    "version": "1.0.0",
+    "engines": {
+        "node": "12.x"
+    },
+    "description": "Socket.io Test",
+    "main": "index.js",
+    "scripts": {
+        "start": "node index.js"
+    },
+    "keywords": [
+        "socket.io"
+    ],
+    "author": "Marcus",
+    "license": "ISC",
+    "dependencies": {
+        "express": "^4.17.1",
+        "socket.io": "^4.1.3"
+    }
 }
