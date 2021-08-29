@@ -1,14 +1,6 @@
-var fs = require('fs')
-    // var https = require('https')
-    // 如果不需要用 https 的話，要改成引用 http 喔
+const fs = require('fs')
 const express = require('express');
 const socketIO = require('socket.io');
-
-//https 的一些設定，如果不需要使用 ssl 加密連線的話，把內容註解掉就好
-var options = {
-    // key: fs.readFileSync('這個網域的 ssl key 位置'),
-    // cert: fs.readFileSync('這個網域的 ssl fullchain 位置')
-}
 const PORT = process.env.PORT || 3000;
 const INDEX = '/index.html';
 
