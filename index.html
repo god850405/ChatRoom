@@ -21,12 +21,13 @@
                     <ul>
                         <li v-for="m in messages">
                             <div> {{m.name}}：</div>
-                            <div class="ImageMessage" v-if="(m.message.indexOf('data:image')>-1)">
+                            <div class="ImageMessage" v-if="m.type==='photo'">
                                 <img :src="m.message" class="pic" height="100" width="100" @click="open(m.message)">
                             </div>
-                            <div v-if="(m.message.indexOf('data:image')==-1)">
+                            <div v-if="m.type==='text'">
                                 {{m.message}}
                             </div>
+                            <span style="float: right;">{{m.time}}</span>
                         </li>
                     </ul>
                     <div>{{ typing?'輸入中...':'' }}</div>
@@ -299,7 +300,12 @@
         el: "#app",
         data: {
             messages: [],
-            temp: {},
+            temp: {
+                name: "System",
+                message: "Welcome!" ,
+                type:'text',
+                time:''
+            },
             socket: null,
             typing: false,
             file: null,
@@ -329,6 +335,8 @@
         methods: {
             sendMessage() {
                 console.log('sending new message')
+                this.temp.type = 'text';
+                this.temp.time = this.ToDateTime(new Date());
                 this.socket.emit("sendMessage", this.temp)
                 this.temp.message = ""
             },
@@ -336,7 +344,9 @@
                 console.log('sending new picture')
                 var argument = {
                     name: this.temp.name,
-                    message: this.b64
+                    message: this.b64,
+                    type : 'photo',
+                    time : this.ToDateTime(new Date())
                 }
                 this.socket.emit("sendMessage", argument);
                 this.preview = false;
@@ -387,6 +397,25 @@
                 ctx.drawImage(img, 0, 0, width, height);
                 img64 = canvas.toDataURL('image/jpeg', ratio);
                 return img64;
+            },
+             ToDateTime(date,separate=`-`){
+                const result = new Date(date);
+                const _yyyy = result.getFullYear();
+                const _MM = result.getMonth()+1;const MM = this.PadLeft(_MM,2,'0');
+                const _dd = result.getDate();const dd = this.PadLeft(_dd,2,'0');
+                const _hh = result.getHours();const hh = this.PadLeft(_hh,2,'0');
+                const _mm = result.getMinutes();const mm = this.PadLeft(_mm,2,'0');
+                const _ss = result.getSeconds();const ss = this.PadLeft(_ss,2,'0');
+                return `${_yyyy}${separate}${MM}${separate}${dd} ${hh}:${mm}:${ss}`;
+            },
+             PadLeft(self,n , str){
+                if (typeof(n) !=='number' || isNaN(n)) return '';
+                let selfStr = `${self}`;
+                let leftStr = '';
+                for (let i =0 ; i<5 ;i++){
+                    leftStr += str;
+                }
+                return (leftStr + selfStr).slice(-n);
             }
 
         }
