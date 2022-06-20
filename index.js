@@ -14,7 +14,6 @@ var io = socketIO(server, {
         credentials: true
     }
 });
-
 var messages = [
     {
         name: "System",
@@ -23,7 +22,6 @@ var messages = [
         time:ToDateTime(new Date())
     }
 ]
-
 var typing = false
 var timer = null
     //用 socket 方式取得
