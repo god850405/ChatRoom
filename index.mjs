@@ -16,9 +16,8 @@ var server = express()
         const username = req.params.username;        
         res.send(Users.filter(user=>user===username).length>0);
     })    
-    .get('/checkRoomTitle/:title', (req, res) => {
-        const title = req.params.title;        
-        res.send(Rooms.filter(room=>room.title===title).length>0);
+    .get('/getRoom', (req, res) => {
+        res.send(Rooms);
     })    
     .use('/',(req, res) => {
         res.sendFile(INDEX, { root: __dirname })
