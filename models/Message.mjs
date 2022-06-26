@@ -8,3 +8,4 @@ export default class Message {
         this.time = ToDateTime();
     }
 }
+

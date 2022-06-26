@@ -2,7 +2,7 @@ import Message from "./models/Message.mjs";
 import { Room, Rooms} from "./models/Room.mjs";
 import { User, Users} from "./models/User.mjs";
 import { Response, ToDateTime, PadLeft } from "./utils/Common.mjs";
-import fs from 'fs'
+import cors from 'cors'
 import express from 'express';
 import { Server } from "socket.io";
 import { dirname } from 'path';
@@ -10,11 +10,21 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 3000;
 const INDEX = "index.html";
-var server = express().use((req, res) => {
+var server = express()
+    .use(cors())
+    .get('/checkUserName/:username', (req, res) => {
+        const username = req.params.username;        
+        res.send(Users.filter(user=>user===username).length>0);
+    })    
+    .get('/checkRoomTitle/:title', (req, res) => {
+        const title = req.params.title;        
+        res.send(Rooms.filter(room=>room.title===title).length>0);
+    })    
+    .use('/',(req, res) => {
         res.sendFile(INDEX, { root: __dirname })
     }).listen(PORT, () => console.log(`Listening on ${PORT}`));
     
-export const io = new Server(server, {
+const io = new Server(server, {
     cors: {
         origin: "*",
         credentials: true,
@@ -23,41 +33,41 @@ export const io = new Server(server, {
 
 io.on("connection", function (socket) {
     console.log('連線成功:',socket.id);
-    socket.on("addUser", function (userName) {
-        if(users.filter(user=>user.name === userName) > 0)
+
+    socket.on("add-user", (userName) => {
+        if(Users.filter(user=>user.name === userName) > 0)
         {       
-            socket.socket(socket.id).emit("addUserSuccess", Response(true,'','新增成功'));
+            socket.emit("add-user-fail", Response(false,'','名稱已存在'));
         }
         else{
-            socket.socket(socket.id).emit("addUserFail", Response(false,'','名稱已存在'));
+            Users.push(
+                new User({sessionID:socket.id,userName:userName})
+            );
         }
     });
-    socket.on("join", function (m) {
-        
-    });
-    socket.on("leave", function () {
-        
-    });
-    socket.on("post", function (m) {
-        
-    });
-    socket.on("disconnect", function () {
-        
-    });
-
-    const all = new Room({
-        roomID : 'all',
-        title : '全頻聊天室',
-        password : '',
-        owner : 'system'
+    
+    socket.on('create-room', ({title,password} = obj) => {        
+        const [user] = Users.filter(user=>user.sessionID===sessionID);
+        const room = new Room({title:title,password:password,owner:user.userName});
+        socket.join(room.roomID);
+        socket.emit('join-room-message', `您已經加入 ${room.title} 聊天室`);
+        io.to(room.roomID).emit('room-brocast', `${socket.id} 已經加入聊天室`);
     })
-    Rooms.push(all);
 
-    socket.emit("allMessage", all.messages);
-
-    socket.on("sendMessage", function (message) {
-
-        all.messages.push(message);
-        io.emit("newMessage", message);
+    socket.on("join", ({roomID,password} = obj) => {
+        const [room] = Rooms.filter(room=>room.roomID===roomID);
+        room.join(io,socket,password);
+    });
+    socket.on("leave", (roomID) => {
+        const [room] = Rooms.filter(room=>room.roomID===roomID);
+        room.leave(io,socket);
+    });
+    socket.on("post", ({roomID,message} = obj) => {
+        const [room] = Rooms.filter(room=>room.roomID===roomID);
+        room.post(io,message);
+        
+    });
+    socket.on("disconnect", () => {
+        
     });
 });
