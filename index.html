@@ -32,13 +32,11 @@
                 console.log(obj)
                 this.messages = obj
             })
-
             // 設定接收到新訊息的監聽器
             this.socket.on("newMessage", obj => {
                 console.log('received new message')
                 this.messages.push(obj)
             })
-
             this.socket.on("someoneIsTyping", value => {
                 this.typing = value
             })

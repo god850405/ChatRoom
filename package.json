@@ -6,8 +6,9 @@
     },
     "description": "Socket.io Test",
     "main": "index.js",
+    "type": "module",
     "scripts": {
-        "start": "node index.js"
+        "start": "node index.mjs"
     },
     "keywords": [
         "socket.io"
