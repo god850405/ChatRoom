@@ -62,7 +62,6 @@ io.on("connection", function (socket) {
     socket.on("post", ({roomID,message} = obj) => {
         const [room] = Rooms.filter(room=>room.roomID===roomID);
         room.post(io,message);
-        
     });
     socket.on("disconnect", () => {
         

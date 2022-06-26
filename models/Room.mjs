@@ -2,8 +2,8 @@ import Message from "./Message.mjs";
 import { Users } from "./User.mjs";
 import { ToDateTime } from "../utils/Common.mjs";
 export class Room{
-    constructor({ title,password,owner } = {}){
-        this.roomID = Math.floor(Math.random()*900000000) + 100000000;
+    constructor({ roomID,title,password,owner } = {}){
+        this.roomID = roomID || Math.floor(Math.random()*900000000) + 100000000;
         this.title = title;
         this.password = password;
         this.owner = owner;
@@ -37,9 +37,9 @@ export class Room{
         }
         else{
             socket.join(this.roomID);  
-            this.users.push(socket.id);    
+            this.users.push(socket.id);  
             const [user] = Users.filter(user=>user.sessionID===socket.id);
-            socket.emit('alert-message', `您已經加入 ${room.title} 聊天室`);
+            socket.emit('alert-message', `您已經加入 ${this.title} 聊天室`);
             io.to(this.roomID).emit('alert-message', `${user.userName} 已經加入聊天室`);    
             socket.emit('get-room-all-message', this.messages);
         }        
