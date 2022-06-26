@@ -17,11 +17,3 @@ export const PadLeft = (self,n , str) => {
     }
     return (leftStr + selfStr).slice(-n);
 }
-
-export const Response = (status, data, message) =>{
-    return {
-        status:status,
-        data:data,
-        message:message
-    }
-}

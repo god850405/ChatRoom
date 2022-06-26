@@ -36,7 +36,7 @@ io.on("connection", function (socket) {
     socket.on("add-user", (userName) => {
         if(Users.filter(user=>user.name === userName) > 0)
         {       
-            socket.emit("add-user-fail", Response(false,'','名稱已存在'));
+            socket.emit("add-user-fail", '名稱已存在');
         }
         else{
             Users.push(
@@ -48,9 +48,7 @@ io.on("connection", function (socket) {
     socket.on('create-room', ({title,password} = obj) => {        
         const [user] = Users.filter(user=>user.sessionID===sessionID);
         const room = new Room({title:title,password:password,owner:user.userName});
-        socket.join(room.roomID);
-        socket.emit('join-room-message', `您已經加入 ${room.title} 聊天室`);
-        io.to(room.roomID).emit('room-brocast', `${socket.id} 已經加入聊天室`);
+        room.create(io,socket);
     })
 
     socket.on("join", ({roomID,password} = obj) => {
