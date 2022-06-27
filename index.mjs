@@ -42,6 +42,7 @@ io.on("connection", function (socket) {
             Users.push(
                 new User({sessionID:socket.id,userName:userName})
             );
+            socket.emit("add-user-success",'');
         }
     });
     
@@ -61,7 +62,7 @@ io.on("connection", function (socket) {
     });
     socket.on("post", ({roomID,message} = obj) => {
         const [room] = Rooms.filter(room=>room.roomID===roomID);
-        room.post(io,message);
+        room.post(io,socket,message);
     });
     socket.on("disconnect", () => {
         
