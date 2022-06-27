@@ -62,5 +62,10 @@ export const Rooms = [
         title : '全頻聊天室',
         password : '',
         owner : 'system'
+    }),new Room({
+      roomID:'group',
+      title:'群組聊天室',
+      password:'',
+      owner:'system'
     })
 ];
