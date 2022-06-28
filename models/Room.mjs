@@ -54,7 +54,7 @@ export class Room{
         this.count++;
     }
     leave(io, socket){
-        this.users = this.users?.filter(x=>x!==socket.id);
+        this.users = this.users.filter(x=>x!==socket.id);
         const [user] = Users.filter(x=>x.sessionID===socket.id);
         const message = new Message({
             userName:'notification',
