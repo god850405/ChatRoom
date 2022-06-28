@@ -1,5 +1,6 @@
 import Message from "./Message.mjs";
 import { Users } from "./User.mjs";
+import { MessageType } from "../types/index.mjs"
 export class Room{
     constructor({ roomID, title, password, owner } = {}){
         this.roomID = roomID || Math.floor(Math.random()*900000000) + 100000000;
@@ -12,15 +13,19 @@ export class Room{
             new Message({
                 userName: "system",
                 message: "Welcome!",
-                type: "text"
+                type: MessageType.TEXT
             })
         ];
     }
     create(io, socket){
         socket.join(this.roomID);        
         const [user] = Users.filter(user=>user.sessionID===socket.id);
-        io.to(this.roomID).emit('alert-message', `${user.userName} 已經加入聊天室`);
-        socket.emit('alert-message', `您已經加入 ${this.title} 聊天室`);
+        const message = new Message({
+            userName:'notification',
+            message:`${user.userName} 已經加入聊天室`,
+            type:MessageType.TEXT
+        });
+        this.post(io,message);
         this.count++;
     }
     join(io, socket, password){
@@ -36,22 +41,30 @@ export class Room{
         else{
             socket.join(this.roomID);  
             this.users.push(socket.id);  
-            const [user] = Users.filter(user=>user.sessionID===socket.id);
-            socket.emit('alert-message', `您已經加入 ${this.title} 聊天室`);
-            io.to(this.roomID).emit('alert-message', `${user.userName} 已經加入聊天室`);    
-            socket.emit('get-room-all-message', this.messages);
+            const [user] = Users.filter(user=>user.sessionID===socket.id); 
+            socket.emit('set-current-room',this.title);
+            socket.emit('get-room-all-message',this.messages);
+            const message = new Message({
+                userName:'notification',
+                message:`${user.userName} 已經加入聊天室`,
+                type:MessageType.TEXT
+            });
+            this.post(io,message); 
         }        
         this.count++;
     }
     leave(io, socket){
-        users = this.users.filter(user!==socket.id);
-        const [user] = Users.filter(user=>user.sessionID===socket.id);
-        io.to(this.roomID).emit('alert-message', `${user.userName}  已經離開聊天室`);
+        this.users = this.users?.filter(x=>x!==socket.id);
+        const [user] = Users.filter(x=>x.sessionID===socket.id);
+        const message = new Message({
+            userName:'notification',
+            message:`${user.userName} 已經離開聊天室`,
+            type:MessageType.TEXT
+        });
+        this.post(io,message);
         this.count--;
     }
-    post(io, socket, msg){
-        const [user] = Users.filter(user=>user.sessionID===socket.id); 
-        const message = new Message({userName:user.userName,...msg});       
+    post(io, message){     
         this.messages.push(message);
         io.to(this.roomID).emit('room-brocast', message);
     }   
@@ -62,10 +75,11 @@ export const Rooms = [
         title : '全頻聊天室',
         password : '',
         owner : 'system'
-    }),new Room({
-      roomID:'group',
-      title:'群組聊天室',
-      password:'',
-      owner:'system'
+    }),
+    new Room({
+        roomID:'group',
+        title:'群組聊天室',
+        password:'',
+        owner:'system'
     })
 ];

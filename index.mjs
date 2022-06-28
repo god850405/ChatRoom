@@ -29,10 +29,7 @@ const io = new Server(server, {
         credentials: true,
     },
 });
-
 io.on("connection", function (socket) {
-    console.log('連線成功:',socket.id);
-
     socket.on("add-user", (userName) => {
         if(Users.filter(user=>user.name === userName) > 0)
         {       
@@ -44,15 +41,17 @@ io.on("connection", function (socket) {
             );
             socket.emit("add-user-success",'');
         }
-    });
-    
+    }); 
     socket.on('create-room', ({title,password} = obj) => {        
         const [user] = Users.filter(user=>user.sessionID===sessionID);
         const room = new Room({title:title,password:password,owner:user.userName});
         room.create(io,socket);
     })
-
-    socket.on("join", ({roomID,password} = obj) => {
+    socket.on("join", ({preRoomID,roomID,password} = obj) => {
+        if(preRoomID){
+            const [preRoom] = Rooms.filter(room=>room.roomID===preRoomID);
+            preRoom.leave(io,socket);
+        }
         const [room] = Rooms.filter(room=>room.roomID===roomID);
         room.join(io,socket,password);
     });
@@ -62,7 +61,9 @@ io.on("connection", function (socket) {
     });
     socket.on("post", ({roomID,message} = obj) => {
         const [room] = Rooms.filter(room=>room.roomID===roomID);
-        room.post(io,socket,message);
+        const [user] = Users.filter(user=>user.sessionID===socket.id); 
+        const msg = new Message({userName:user.userName,...message});  
+        room.post(io,msg);
     });
     socket.on("disconnect", () => {
         
