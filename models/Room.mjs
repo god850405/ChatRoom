@@ -50,8 +50,8 @@ export class Room{
                 type:MessageType.TEXT
             });
             this.post(io,message); 
+            this.count++;
         }        
-        this.count++;
     }
     leave(io, socket){
         this.users = this.users.filter(x=>x!==socket.id);
