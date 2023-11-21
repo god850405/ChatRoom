@@ -8,8 +8,7 @@
     "main": "index.mjs",
     "type": "module",
     "scripts": {
-        "start": "node index.mjs",
-        "vercel-build": "node ./index.mjs"
+        "start": "node index.mjs"
     },
     "keywords": [
         "socket.io"
